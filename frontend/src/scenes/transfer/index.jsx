@@ -23,6 +23,7 @@ const Transactions = () => {
   const [openTransferModal, setOpenTransferModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [amount, setAmount] = useState("");
+  const [email, setEmail] = useState("");
 
   const handleTransferClick = (userId) => {
     const user = data.transactions.find(
@@ -38,13 +39,17 @@ const Transactions = () => {
       const result = axios.put(`${config.baseURL}/users/Credit`, {
         searchInput,
         amount,
+        email,
       });
       // Reset form values
       setSelectedUser("");
       setAmount(0);
       setOpenTransferModal(false);
-      if (result) {
+      console.log(result.data);
+      if (result.data == "Updated") {
         console.log("Success");
+      } else if (result.data == "In sufficient Balance") {
+        alert("Insufficient Balance");
       }
     } catch (error) {
       console.error("Failed to transfer", error);
@@ -80,6 +85,9 @@ const Transactions = () => {
     }
   };
   useEffect(() => {
+    const user = localStorage.getItem("User");
+    const userEmail = JSON.parse(user)[0].email;
+    setEmail(userEmail);
     const timeoutId = setTimeout(() => {
       handleSearchInput();
     }, 500);

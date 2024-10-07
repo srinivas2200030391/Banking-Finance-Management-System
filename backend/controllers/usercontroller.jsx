@@ -1,7 +1,7 @@
 const user = require("../models/customer.jsx");
 const pending = require("../models/PendingModel.jsx");
 const loan = require("../models/LoanModel.jsx");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const salt = bcrypt.genSaltSync(10);
 const secret = bcrypt.hashSync("BA/4789adfafadfafa", salt);
 const jwt = require("jsonwebtoken");
@@ -9,10 +9,10 @@ const jwt = require("jsonwebtoken");
 const LoanApplicant = require("../models/LoanApplicant.jsx");
 const PendingLoanApplicant = require("../models/PendingLoanApplicant.jsx");
 
-const multer = require('multer')
-const path = require('path')
+const multer = require("multer");
+const path = require("path");
 
-const fs = require('fs')
+const fs = require("fs");
 
 const TransactionModel = require("../models/Transactions.jsx");
 
@@ -89,8 +89,6 @@ const getuserbyemail = async (request, response) => {
 // };
 //userbyaccountno
 
-
-
 const editusers = async (request, response) => {
   try {
     const username = request.body.username;
@@ -130,33 +128,47 @@ const deleteusers = async (request, response) => {
 const Credit = async (request, response) => {
   try {
     const s = request.body;
-    console.log(s);
-    const email = Object.values(s)[0];
+    const account = Object.values(s)[0];
     const value = parseInt(Object.values(s)[1]);
-    var data = await user.find({ accountnumber: email },{ _id: 1, balance: 1 });
+    const useremail = Object.values(s)[2];
+    var data = await user.find(
+      { accountnumber: account },
+      { _id: 1, balance: 1 }
+    );
+    var data1 = await user.find({ email: useremail }, { _id: 1, balance: 1 });
     data = data[0];
-    data = await user.updateOne({ _id: data._id },{ balance: data.balance + value });
+    data1 = data1[0];
+    if (data1.balance >= value) {
+      console.log("Hy");
+      data1 = await user.updateOne(
+        { _id: data1._id },
+        { balance: data1.balance - value }
+      );
+      data = await user.updateOne(
+        { _id: data._id },
+        { balance: data.balance + value }
+      );
 
-    const sender = data._id;
-    const reciever = email;
-    const amount = value;
+      const sender = data._id;
+      const reciever = email;
+      const amount = value;
 
+      const newTransaction = new TransactionModel({
+        sender,
+        reciever,
+        amount,
+      });
 
-const newTransaction = new TransactionModel({
-  sender,
-  reciever,
-  amount,
-  
-});
+      await newTransaction.save();
 
-await newTransaction.save();
-    console.log(data);
-    response.send("Updated");
+      response.status(200).send("Updated");
+    } else {
+      response.status(500).send("In sufficient Balance");
+    }
   } catch (error) {
     response.status(500).send(error.message);
   }
 };
-
 
 const Withdrawl = async (request, response) => {
   try {
@@ -248,43 +260,37 @@ const getAppliedLoans = async (request, response) => {
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, './public/'); // Destination folder
+    cb(null, "./public/"); // Destination folder
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname); // File naming convention
-  }
+  },
 });
 
-const upload = multer({ storage: storage }).single('file');
+const upload = multer({ storage: storage }).single("file");
 
-const addprofile = async (req, res) =>
-    {
-      try 
-      {
-        upload(req, res, async function (err) 
-        {
-          if (err) 
-          {
-            console.error(err);
-            return res.status(500).send(err.message);
-          }
-          
-          const fileName = req.file ? req.file.filename : undefined; // Extracting file name
-    
-          const newFile = new user({
-            file: fileName // Save only the file name
-          });
-    
-          await newFile.save();
-          res.status(200).send('Event Created Successfully');
-        });
-      } 
-      catch (error) 
-      {
-        console.error(error);
-        res.status(500).send(error.message);
+const addprofile = async (req, res) => {
+  try {
+    upload(req, res, async function (err) {
+      if (err) {
+        console.error(err);
+        return res.status(500).send(err.message);
       }
-    };
+
+      const fileName = req.file ? req.file.filename : undefined; // Extracting file name
+
+      const newFile = new user({
+        file: fileName, // Save only the file name
+      });
+
+      await newFile.save();
+      res.status(200).send("Event Created Successfully");
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(error.message);
+  }
+};
 
 module.exports = {
   create,

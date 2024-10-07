@@ -10,6 +10,7 @@ import Contactus from "./Contactus";
 import Rights from "./rights";
 import Signup from "./signup";
 import Cards from "./Cards";
+import NotFound from "./NotFound";
 
 // import UserDashboard from "../UserDashboard";
 // import Profile from "../scenes/profile";
@@ -46,6 +47,7 @@ const Home = ({ onAdminLogin, onCustomerLogin }) => {
         />
         <Route path="/signup" element={<Signup />} />
         <Route path="/CreditCard" element={<Cards />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
   );

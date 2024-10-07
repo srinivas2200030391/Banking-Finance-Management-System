@@ -42,6 +42,10 @@ const AdminSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  image: {
+    type: String,
+    default: "",
+  },
 });
 
 const AdminModel = mongoose.model("Admin", AdminSchema);

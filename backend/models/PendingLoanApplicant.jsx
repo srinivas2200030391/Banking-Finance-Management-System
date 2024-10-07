@@ -32,6 +32,9 @@ const PendingLoanApplicantSchema = new mongoose.Schema({
   // Add other relevant fields as needed (e.g., collateral, purpose, etc.)
 });
 
-const PendingLoanApplicant = mongoose.model("PendingLoanApplicant", PendingLoanApplicantSchema);
+const PendingLoanApplicant = mongoose.model(
+  "PendingLoanApplicant",
+  PendingLoanApplicantSchema
+);
 
 module.exports = PendingLoanApplicant;

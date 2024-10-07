@@ -56,6 +56,10 @@ const RejectedSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  image: {
+    type: String,
+    default: "",
+  },
 });
 
 const RejectedModel = mongoose.model("Rejected", RejectedSchema);

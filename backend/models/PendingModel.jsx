@@ -56,6 +56,10 @@ const PendingSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  image: {
+    type: String,
+    default: "",
+  },
 });
 
 const PendingModel = mongoose.model("Pending", PendingSchema);
